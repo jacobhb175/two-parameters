@@ -2,25 +2,35 @@
 title: "Two Parameters"
 author: "Jacob Hardin-Bernhardt"
 format: html
+execute: 
+  echo: false
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+library(tidyverse)
+library(primer.data)
+library(tidybayes)
+library(brms)
+library(gtsummary)
+```
+```{r}
+#| cache: TRUE
+fit_male_height<-brm(formula = height ~ 1, data = ch5, family = gaussian(), silent = 2, refresh = 0, seed = 12)
+
+```
+```{r}
+#| label: plot
+ndata<-tibble(.rows=1)
+```
+using data from a study on american men 2009-11 we attempt to create a model of male heights. one potential problem is differences in methodology or changes over time. using a gaussian model
+```{r}
+fit_male_height |> 
+  add_predicted_draws(newdata=ndata) |>
+  mutate(tall=if_else(.prediction>180,TRUE,FALSE)) |>
+  summarize(odd=mean(tall))
 ```
 
-You can add options to executable code like this 
-
 ```{r}
-#| echo: false
-2 * 2
+tbl_regression(fit_male_height,intercept=TRUE)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
